@@ -5,6 +5,7 @@ interface ChordStore extends ProgressionState {
   addChordNode: (suggestion: ChordSuggestion) => void;
   selectNode: (nodeId: string) => void;
   getProgression: () => string[];
+  getProgressionNodes: () => ChordNode[];
   getActiveBranchId: () => string;
   getChildrenOf: (nodeId: string) => ChordNode[];
   getBranchNodes: (branchId: string) => ChordNode[];
@@ -126,5 +127,20 @@ export const useChordStore = create<ChordStore>((set, get) => ({
 
   getBranchNodes: (branchId: string) => {
     return Object.values(get().nodes).filter((n) => n.branchId === branchId).sort((a,b)=>a.createdAt-b.createdAt);
+  },
+  // Return the progression as an array of ChordNode objects from root -> selected
+  getProgressionNodes: () => {
+    const state = get();
+    const progression: ChordNode[] = [];
+    let currentNodeId: string | null = state.selectedNodeId;
+
+    while (currentNodeId !== null) {
+      const node: ChordNode | undefined = state.nodes[currentNodeId];
+      if (!node) break;
+      progression.unshift(node);
+      currentNodeId = node.parentId;
+    }
+
+    return progression;
   },
 }));
