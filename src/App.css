@@ -1,0 +1,323 @@
+:root {
+  --primary-color: #4f46e5;
+  --primary-hover: #4338ca;
+  --secondary-color: #06b6d4;
+  --background: #ffffff;
+  --surface: #f3f4f6;
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --border-color: #e5e7eb;
+  --success-color: #10b981;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--surface);
+  color: var(--text-primary);
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100vh;
+  background-color: var(--surface);
+}
+
+.app-header {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 2rem 1rem;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.app-header h1 {
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.app-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 2rem 1rem;
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.section {
+  background-color: var(--background);
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--border-color);
+}
+
+.top-section {
+  flex: 1;
+}
+
+.middle-section {
+  flex: 2;
+}
+
+.bottom-section {
+  flex: 1;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+/* Progression Display */
+.progression-display h2,
+.suggestion-cards h2,
+.debug-view h2 {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+.progression-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.chord-badge {
+  background-color: var(--secondary-color);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 1rem;
+  min-width: 80px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.no-progression {
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+/* Suggestion Cards */
+.cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.suggestion-card {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  font-size: 0.95rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.suggestion-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.suggestion-card:active {
+  transform: translateY(-2px);
+}
+
+.card-name {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.card-label {
+  font-size: 0.85rem;
+  opacity: 0.9;
+}
+
+.card-explanation {
+  font-size: 0.8rem;
+  opacity: 0.85;
+}
+
+.card-notes {
+  font-size: 0.75rem;
+  opacity: 0.8;
+  margin-top: 0.25rem;
+}
+
+/* Debug View */
+.debug-view pre {
+  background-color: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 1rem;
+  overflow-x: auto;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: var(--text-primary);
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Courier New', monospace;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .app-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .app-main {
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .section {
+    padding: 1rem;
+  }
+
+  .cards-container {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+  }
+
+  .progression-row {
+    gap: 0.5rem;
+  }
+
+  .chord-badge {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+    min-width: 70px;
+  }
+}
+
+/* Timeline Graph - Git-like Minimalist Aesthetic */
+.timeline-graph {
+  width: 100%;
+  min-height: 400px;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+}
+
+.timeline-graph svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 300px;
+}
+
+/* SVG Elements - Minimalist styling */
+.timeline-lane {
+  stroke: #f0f0f0;
+  stroke-width: 0.5;
+  opacity: 0.4;
+}
+
+.timeline-edge {
+  stroke: #999999;
+  stroke-width: 1;
+  fill: none;
+  opacity: 0.3;
+  transition: opacity 0.2s ease, stroke 0.2s ease;
+}
+
+.timeline-edge.active {
+  stroke: #666666;
+  opacity: 0.7;
+  stroke-width: 1.2;
+}
+
+.timeline-node {
+  transition: all 0.15s ease;
+}
+
+.timeline-node:hover .node-dot {
+  r: 6.5;
+  opacity: 0.8;
+}
+
+.timeline-node.selected .node-dot {
+  r: 7.5;
+  fill: #333333;
+  opacity: 1;
+}
+
+.node-dot {
+  fill: #b0b0b0;
+  stroke: #f9f9f9;
+  stroke-width: 2;
+  opacity: 0.5;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.node-label {
+  fill: #666666;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  pointer-events: none;
+  opacity: 0.7;
+  transition: fill 0.15s ease;
+  font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+}
+
+.timeline-node.selected .node-label {
+  fill: #333333;
+  font-weight: 600;
+  opacity: 1;
+}
+
+.timeline-node:hover .node-label {
+  fill: #333333;
+  opacity: 1;
+}
+
+/* Branch active / inactive helpers */
+.branch-inactive .timeline-edge,
+.branch-inactive .node-dot,
+.branch-inactive .node-label {
+  opacity: 0.25;
+  filter: grayscale(60%);
+}
+
+.branch-active .timeline-edge,
+.branch-active .node-dot,
+.branch-active .node-label {
+  opacity: 0.95;
+}
+
+/* Ensure edges don't intercept pointer events so nodes remain clickable */
+.timeline-graph svg {
+  pointer-events: auto;
+}
+.timeline-edge {
+  pointer-events: none;
+}
+.node-dot, .node-label {
+  pointer-events: auto;
+}
