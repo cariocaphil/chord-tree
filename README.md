@@ -10,6 +10,7 @@ A React + TypeScript + Vite app for chord-by-chord composition exploration.
   - Current progression shown as chord badges
   - Clickable suggestion cards for next chords
   - Debug view showing graph structure
+ - **Playback**: Play the current progression with a simple piano-like synth (Tone.js)
 
 ## Project Structure
 
@@ -17,6 +18,7 @@ A React + TypeScript + Vite app for chord-by-chord composition exploration.
 src/
 ├── types.ts                 # Core type definitions
 ├── chordStore.ts           # Zustand store for state management
+├── playbackService.ts      # Tone.js playback logic (PolySynth)
 ├── App.tsx                 # Main application component
 ├── App.css                 # Application styles
 ├── main.tsx                # Entry point
@@ -67,6 +69,12 @@ npm run build
 - `nodes`: Record of all ChordNodes keyed by ID
 - `selectedNodeId`: Currently selected node
 - `suggestions`: Array of suggested next chords
+
+## Playback
+
+- A `Play` button in the `ProgressionDisplay` plays the current progression from root to the selected node.
+- Playback uses `Tone.PolySynth` via `src/playbackService.ts`. Each chord plays for one second by default.
+- Note: browsers require a user gesture to enable audio output — click the page or the Play button if playback doesn't start on first attempt.
 
 ## Workflow
 

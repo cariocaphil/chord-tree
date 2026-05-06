@@ -25,6 +25,7 @@ src/
     ├── ProgressionDisplay.tsx    # Current progression
     ├── SuggestionCards.tsx       # Chord suggestions
     └── DebugGraphView.tsx        # Graph state debug
+   └── playbackService.ts       # Tone.js playback logic (PolySynth)
 ```
 
 ## To Run the Project
@@ -49,6 +50,7 @@ The app will be available at `http://localhost:5173`
    - Bottom: Debug view showing graph state as JSON
 4. **Hardcoded Suggestions**: Am7, Dm7, Fmaj7, G7
 5. **Workflow**: Click suggestion → create node → update progression
+6. **Playback**: `Play` button in the progression area plays the current root→selected path using `Tone.PolySynth` (one second per chord).
 
 ## Development
 
