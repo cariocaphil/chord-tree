@@ -26,7 +26,8 @@ src/
 └── components/
     ├── ProgressionDisplay.tsx    # Shows current chord progression
     ├── SuggestionCards.tsx       # Displays suggested next chords
-    └── DebugGraphView.tsx        # Debug view of graph state
+  ├── DebugGraphView.tsx        # Debug view of graph state
+  └── ChordNotation.tsx        # Small VexFlow staff renderer for chords
 ```
 
 ## Installation
@@ -75,6 +76,12 @@ npm run build
 - A `Play` button in the `ProgressionDisplay` plays the current progression from root to the selected node.
 - Playback uses `Tone.PolySynth` via `src/playbackService.ts`. Each chord plays for one second by default.
 - Note: browsers require a user gesture to enable audio output — click the page or the Play button if playback doesn't start on first attempt.
+
+## Notation & UI
+
+- Each chord card and progression badge now shows a small treble staff rendered with VexFlow (`src/components/ChordNotation.tsx`) displaying the chord as a stacked whole note.
+- Suggested cards display the chord name once (under the staff). Progression chips display notation above the chord name.
+- Tile sizes were increased to comfortably fit notation and labels; see `src/App.css` for styling values.
 
 ## Workflow
 

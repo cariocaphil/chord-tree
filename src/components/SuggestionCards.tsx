@@ -1,4 +1,5 @@
 import { useChordStore } from '../chordStore';
+import ChordNotation from './ChordNotation';
 
 export const SuggestionCards = () => {
   const suggestions = useChordStore((state) => state.suggestions);
@@ -14,10 +15,11 @@ export const SuggestionCards = () => {
             className="suggestion-card"
             onClick={() => addChordNode(suggestion)}
           >
-            <div className="card-name">{suggestion.chordName}</div>
-            <div className="card-label">{suggestion.label}</div>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <ChordNotation notes={suggestion.notes} width={160} height={96} />
+              <div className="card-name">{suggestion.chordName}</div>
+            </div>
             <div className="card-explanation">{suggestion.explanation}</div>
-            <div className="card-notes">{suggestion.notes.join(', ')}</div>
           </button>
         ))}
       </div>
