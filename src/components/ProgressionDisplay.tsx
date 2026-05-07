@@ -1,5 +1,6 @@
 import { useChordStore } from '../chordStore';
 import playbackService from '../playbackService';
+import ChordNotation from './ChordNotation';
 
 export const ProgressionDisplay = () => {
   const getProgression = useChordStore((state) => state.getProgression);
@@ -23,12 +24,13 @@ export const ProgressionDisplay = () => {
           Play
         </button>
         <div className="progression-row">
-          {progression.length === 0 ? (
+          {progressionNodes.length === 0 ? (
             <span className="no-progression">No progression yet</span>
           ) : (
-            progression.map((chordName, index) => (
-              <div key={index} className="chord-badge">
-                {chordName}
+            progressionNodes.map((node) => (
+              <div key={node.id} className="chord-badge" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <ChordNotation notes={node.notes} width={140} height={96} />
+                <div style={{ marginTop: 6 }}>{node.chordName}</div>
               </div>
             ))
           )}
