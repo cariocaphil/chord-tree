@@ -24,7 +24,8 @@ src/
 └── components/
     ├── ProgressionDisplay.tsx    # Current progression
     ├── SuggestionCards.tsx       # Chord suggestions
-    └── DebugGraphView.tsx        # Graph state debug
+   ├── DebugGraphView.tsx        # Graph state debug
+   └── ChordNotation.tsx       # VexFlow-based small staff renderer used in cards and progression
    └── playbackService.ts       # Tone.js playback logic (PolySynth)
 ```
 
@@ -51,6 +52,7 @@ The app will be available at `http://localhost:5173`
 4. **Hardcoded Suggestions**: Am7, Dm7, Fmaj7, G7
 5. **Workflow**: Click suggestion → create node → update progression
 6. **Playback**: `Play` button in the progression area plays the current root→selected path using `Tone.PolySynth` (one second per chord).
+7. **Notation**: Each suggestion card and progression badge renders a compact treble staff via VexFlow. Suggestion cards show the chord name once (centered beneath the staff); progression badges show the staff above the chord label. Tile sizes were increased to ensure notation is fully visible.
 
 ## Development
 
