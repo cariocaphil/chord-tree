@@ -18,6 +18,14 @@ export interface ProgressionState {
   nodes: Record<string, ChordNode>;
   selectedNodeId: string;
   suggestions: ChordSuggestion[];
+  /** True while a /suggest-next-chords request is in-flight. */
+  isFetchingSuggestions: boolean;
+  /** Non-null when the last fetch ended with an error. */
+  suggestionError: string | null;
+  /** Composition style forwarded to the engine (e.g. "jazz"). */
+  style: string;
+  /** Mood forwarded to the engine (e.g. "melancholic"). */
+  mood: string;
   // currently active branch id (the branch the user has checked out)
   activeBranchId: string;
 }
