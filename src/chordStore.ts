@@ -4,11 +4,14 @@ import { ChordNode, ChordSuggestion, ProgressionState } from './types';
 interface ChordStore extends ProgressionState {
   addChordNode: (suggestion: ChordSuggestion) => void;
   selectNode: (nodeId: string) => void;
+  deleteSelectedNode: () => void;
   getProgression: () => string[];
   getProgressionNodes: () => ChordNode[];
   getActiveBranchId: () => string;
   getChildrenOf: (nodeId: string) => ChordNode[];
   getBranchNodes: (branchId: string) => ChordNode[];
+  isLeafNode: (nodeId: string) => boolean;
+  getParentNode: (nodeId: string) => ChordNode | null;
 }
 
 const createRootNode = (): ChordNode => ({
@@ -100,6 +103,50 @@ export const useChordStore = create<ChordStore>((set, get) => ({
         activeBranchId: node?.branchId || state.activeBranchId,
       };
     });
+  },
+
+  // ─── Delete the currently selected node (leaf nodes only, not root) ───────
+  deleteSelectedNode: () => {
+    set((state) => {
+      const targetId = state.selectedNodeId;
+      const targetNode = state.nodes[targetId];
+
+      // Guard: root node cannot be deleted
+      if (!targetNode || targetNode.parentId === null) return state;
+
+      // Guard: only leaf nodes (nodes with no children) can be deleted
+      const hasChildren = Object.values(state.nodes).some(
+        (n) => n.parentId === targetId,
+      );
+      if (hasChildren) return state;
+
+      // Immutably remove the target node from the nodes map
+      const { [targetId]: _removed, ...remainingNodes } = state.nodes;
+
+      // Move selection up to the deleted node's parent
+      const parentId = targetNode.parentId;
+      const parentNode = remainingNodes[parentId];
+
+      return {
+        nodes: remainingNodes,
+        selectedNodeId: parentId,
+        activeBranchId: parentNode?.branchId ?? state.activeBranchId,
+      };
+    });
+  },
+
+  // ─── Helper: true when nodeId has no children ─────────────────────────────
+  isLeafNode: (nodeId: string) => {
+    const nodes = get().nodes;
+    return !Object.values(nodes).some((n) => n.parentId === nodeId);
+  },
+
+  // ─── Helper: return the parent ChordNode, or null for root ───────────────
+  getParentNode: (nodeId: string) => {
+    const state = get();
+    const node = state.nodes[nodeId];
+    if (!node || node.parentId === null) return null;
+    return state.nodes[node.parentId] ?? null;
   },
 
   getProgression: () => {

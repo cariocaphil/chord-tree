@@ -126,7 +126,50 @@ body {
   font-style: italic;
 }
 
-/* Suggestion Cards */
+/* Play and Delete buttons */
+.play-button,
+.delete-button {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.play-button:hover:not(:disabled),
+.delete-button:hover:not(:disabled) {
+  background-color: var(--primary-hover);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.play-button:active:not(:disabled),
+.delete-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.play-button:disabled,
+.delete-button:disabled {
+  background-color: #d1d5db;
+  color: #9ca3af;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.delete-button {
+  background-color: #ef4444;
+}
+
+.delete-button:hover:not(:disabled) {
+  background-color: #dc2626;
+}
+
+
 .cards-container {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));

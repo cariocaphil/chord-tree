@@ -3,17 +3,30 @@ import playbackService from '../playbackService';
 import ChordNotation from './ChordNotation';
 
 export const ProgressionDisplay = () => {
-  const getProgression = useChordStore((state) => state.getProgression);
   const getProgressionNodes = useChordStore((state) => state.getProgressionNodes);
+  const selectedNodeId = useChordStore((state) => state.selectedNodeId);
+  const nodes = useChordStore((state) => state.nodes);
+  const deleteSelectedNode = useChordStore((state) => state.deleteSelectedNode);
+  const isLeafNode = useChordStore((state) => state.isLeafNode);
+  
   // Subscribe to nodes and selectedNodeId to trigger re-render on changes
   useChordStore((state) => [state.nodes, state.selectedNodeId]);
 
-  const progression = getProgression();
   const progressionNodes = getProgressionNodes();
+  
+  // Determine if delete button should be enabled
+  const selectedNode = nodes[selectedNodeId];
+  const isRootNode = selectedNode?.parentId === null;
+  const isLeaf = isLeafNode(selectedNodeId);
+  const canDelete = !isRootNode && isLeaf;
 
   const handlePlay = async () => {
     const chords: string[][] = progressionNodes.map((n) => n.notes || []);
     await playbackService.playProgression(chords, 1);
+  };
+
+  const handleDelete = () => {
+    deleteSelectedNode();
   };
 
   return (
@@ -22,6 +35,14 @@ export const ProgressionDisplay = () => {
       <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
         <button onClick={handlePlay} disabled={progressionNodes.length === 0} className="play-button">
           Play
+        </button>
+        <button 
+          onClick={handleDelete} 
+          disabled={!canDelete} 
+          className="delete-button"
+          title={isRootNode ? "Cannot delete root node" : !isLeaf ? "Cannot delete node with children" : "Delete selected node"}
+        >
+          Delete
         </button>
         <div className="progression-row">
           {progressionNodes.length === 0 ? (
