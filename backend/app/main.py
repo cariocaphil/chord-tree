@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import logging
 import logging.config
+import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -80,16 +81,21 @@ def create_app() -> FastAPI:
     )
 
     # ── CORS ──────────────────────────────────────────────────────────────────
-    # In development the Vite dev server runs on port 5173.
-    # In production replace the wildcard with your real frontend origin.
+    # Always-allowed origins (local dev).
+    # Add production frontend URLs via the ALLOWED_ORIGINS env var as a
+    # comma-separated list, e.g.:
+    #   ALLOWED_ORIGINS=https://chord-tree.vercel.app,https://my-custom.domain
+    base_origins = [
+        "http://localhost:5173",   # Vite dev server
+        "http://127.0.0.1:5173",
+        "http://localhost:4173",   # Vite preview
+    ]
+    extra = os.getenv("ALLOWED_ORIGINS", "")
+    extra_origins = [o.strip() for o in extra.split(",") if o.strip()]
+
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=[
-            "http://localhost:5173",   # Vite dev server
-            "http://127.0.0.1:5173",
-            "http://localhost:4173",   # Vite preview
-            "https://chord-tree-production.up.railway.app"
-        ],
+        allow_origins=base_origins + extra_origins,
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
