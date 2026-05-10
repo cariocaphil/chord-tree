@@ -14,6 +14,9 @@ powered by an AI suggestion engine (GPT-4o) on the backend.
 - **Playback** — play the progression root-to-selected with a PolySynth (Tone.js)
 - **Notation** — every chord card and progression badge renders a mini treble staff
   (VexFlow)
+- **PDF export** — export the currently selected path as a printable A4 PDF;
+  each chord is rendered as a high-resolution notation image via VexFlow's Canvas
+  backend and embedded in the PDF by the backend (ReportLab)
 - **Educational comments** — one-sentence music-theory explanation on every suggestion
 - **Style & mood context** — set the composition style (e.g. `jazz`) and mood
   (e.g. `melancholic`) to steer the AI
@@ -31,19 +34,21 @@ chord-tree/
 │   ├── chordStore.ts                  # Zustand store — all app state + actions
 │   ├── playbackService.ts             # Tone.js PolySynth playback
 │   ├── App.tsx                        # Root component
-│   ├── App.css                        # Component styles
+│   ├── App.css                        # Component styles (incl. modal + export button)
 │   ├── main.tsx                       # Vite entry point
 │   ├── index.css                      # Global styles / CSS variables
 │   ├── api/
-│   │   └── chordApi.ts                # Typed fetch client for the backend
+│   │   ├── chordApi.ts                # Typed fetch client — suggestions
+│   │   └── exportApi.ts               # Typed fetch client — PDF export
 │   └── components/
-│       ├── ProgressionDisplay.tsx     # Progression path + Play button
+│       ├── ProgressionDisplay.tsx     # Progression path + Play / Delete / Export PDF
+│       ├── ExportPdfModal.tsx         # PDF export modal (VexFlow Canvas → PNG → PDF)
 │       ├── SuggestionCards.tsx        # AI suggestion cards
-│       ├── ChordNotation.tsx          # VexFlow mini staff renderer
+│       ├── ChordNotation.tsx          # VexFlow mini staff renderer (SVG backend)
 │       ├── EducationalComments.tsx    # Theory explanation display
 │       ├── TimelineGraph.tsx          # Branch / timeline visualisation
 │       └── DebugGraphView.tsx         # Raw graph state inspector
-└── backend/                           # FastAPI suggestion engine (see backend/README.md)
+└── backend/                           # FastAPI suggestion + export engine (see backend/README.md)
 ```
 
 ---
@@ -193,6 +198,50 @@ Vite proxies `/api/*` → `http://127.0.0.1:8000` in development
 
 ---
 
+## PDF Export
+
+Click **Export PDF** in the progression bar to open the export modal.
+
+### How it works
+
+```
+User clicks Export PDF
+  └─ ExportPdfModal opens
+       └─ User sets a document title (default: "My Chord Progression")
+       └─ User clicks Download PDF
+            └─ document.fonts.ready awaited           ← ensures music font is loaded
+            └─ for each chord in the selected path:
+                 └─ renderChordToPng(notes)
+                      └─ Renderer(canvas, Backends.CANVAS)  ← VexFlow Canvas backend
+                      └─ draws Stave + StaveNote directly into HTMLCanvasElement
+                      └─ canvas.toDataURL('image/png')       ← pixel-perfect PNG
+            └─ POST /api/export/pdf
+                 { title, chords: [{ chordName, notes, notationImage }] }
+                      │
+                      ▼  (FastAPI + ReportLab)
+                 A4 PDF  ← ImageReader embeds each PNG into a chord block
+            └─ Browser triggers file download
+```
+
+### Why the Canvas backend (not SVG serialisation)
+
+VexFlow's SVG backend references the Bravura / Gonville music font via CSS
+`@font-face`.  When that SVG is serialised and loaded from a Blob URL the
+browser cannot resolve the font, rendering every notehead as a `■` block.
+
+The **Canvas backend** draws glyphs directly into pixels using the browser's
+already-loaded font cache — no serialisation, no font loss.
+
+### PDF layout
+
+- Title centred at the top (Helvetica-Bold 22 pt)
+- Export date in grey below the title
+- Chord blocks in rows of 3, centred on the A4 page
+- Each block: notation PNG (scaled to fit, aspect ratio preserved) + chord name below
+- Rows wrap automatically; new pages open when content would overflow
+
+---
+
 ## Technologies
 
 | Layer | Technology |
@@ -202,7 +251,8 @@ Vite proxies `/api/*` → `http://127.0.0.1:8000` in development
 | Build tool | Vite |
 | State management | Zustand |
 | Audio | Tone.js |
-| Music notation | VexFlow |
+| Music notation | VexFlow 5 |
 | Styling | CSS3 + CSS variables |
 | Backend | FastAPI (Python) |
 | AI suggestions | OpenAI GPT-4o-mini |
+| PDF generation | ReportLab 4 |

@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { useChordStore } from '../chordStore';
 import playbackService from '../playbackService';
 import ChordNotation from './ChordNotation';
+import { ExportPdfModal } from './ExportPdfModal';
 
 export const ProgressionDisplay = () => {
   const getProgressionNodes = useChordStore((state) => state.getProgressionNodes);
@@ -11,6 +13,8 @@ export const ProgressionDisplay = () => {
   
   // Subscribe to nodes and selectedNodeId to trigger re-render on changes
   useChordStore((state) => [state.nodes, state.selectedNodeId]);
+
+  const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
 
   const progressionNodes = getProgressionNodes();
   
@@ -32,17 +36,25 @@ export const ProgressionDisplay = () => {
   return (
     <div className="progression-display">
       <h2>Current Progression</h2>
-      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
         <button onClick={handlePlay} disabled={progressionNodes.length === 0} className="play-button">
           Play
         </button>
-        <button 
-          onClick={handleDelete} 
-          disabled={!canDelete} 
+        <button
+          onClick={handleDelete}
+          disabled={!canDelete}
           className="delete-button"
-          title={isRootNode ? "Cannot delete root node" : !isLeaf ? "Cannot delete node with children" : "Delete selected node"}
+          title={isRootNode ? 'Cannot delete root node' : !isLeaf ? 'Cannot delete node with children' : 'Delete selected node'}
         >
           Delete
+        </button>
+        <button
+          onClick={() => setIsPdfModalOpen(true)}
+          disabled={progressionNodes.length === 0}
+          className="export-pdf-button"
+          title="Export current path as PDF"
+        >
+          Export PDF
         </button>
         <div className="progression-row">
           {progressionNodes.length === 0 ? (
@@ -57,6 +69,13 @@ export const ProgressionDisplay = () => {
           )}
         </div>
       </div>
+
+      {isPdfModalOpen && (
+        <ExportPdfModal
+          progressionNodes={progressionNodes}
+          onClose={() => setIsPdfModalOpen(false)}
+        />
+      )}
     </div>
   );
 };
