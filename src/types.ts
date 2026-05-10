@@ -26,6 +26,8 @@ export interface ProgressionState {
   style: string;
   /** Mood forwarded to the engine (e.g. "melancholic"). */
   mood: string;
+  /** Tonal centre forwarded to the engine (e.g. "C major"). Undefined means unknown. */
+  currentKey?: string;
   // currently active branch id (the branch the user has checked out)
   activeBranchId: string;
 }

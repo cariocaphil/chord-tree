@@ -24,6 +24,8 @@ export interface SuggestNextChordsRequest {
   style: string;
   mood: string;
   numberOfSuggestions: number;
+  /** Tonal centre / key signature if known, e.g. "C major", "A minor". */
+  currentKey?: string;
 }
 
 export interface SuggestNextChordsResponse {

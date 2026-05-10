@@ -6,5 +6,5 @@ pydantic>=2.6.0
 # ── Environment ───────────────────────────────────────────────────────────────
 python-dotenv>=1.0.0
 
-# ── Optional: enable the OpenAI engine in engine/factory.py ──────────────────
-# openai>=1.23.0
+# ── OpenAI engine ────────────────────────────────────────────────────────────
+openai>=1.23.0

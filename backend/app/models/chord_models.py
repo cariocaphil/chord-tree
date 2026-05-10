@@ -5,6 +5,7 @@ and must stay in sync with src/types.ts on the frontend.
 """
 
 from pydantic import BaseModel, Field
+from typing import Optional
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -49,6 +50,11 @@ class SuggestNextChordsRequest(BaseModel):
         ge=1,
         le=8,
         description="Number of chord suggestions to return.",
+    )
+    currentKey: Optional[str] = Field(
+        default=None,
+        description="Tonal centre / key signature if known (e.g. 'C major', 'A minor').",
+        examples=["C major", "A minor"],
     )
 
 

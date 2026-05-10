@@ -2,25 +2,21 @@
 Engine factory – the single place where you choose which suggestion engine
 the app uses at runtime.
 
-Switching to OpenAI
-───────────────────
-1. Install the openai package:      pip install openai
-2. Add your key to backend/.env:    OPENAI_API_KEY=sk-...
-3. Change the return statement below:
+The active engine is OpenAISuggestionEngine.  To fall back to the
+deterministic rule-based engine (no API key required), swap the return
+statement to HardcodedSuggestionEngine().
 
-       # before
-       return HardcodedSuggestionEngine()
-
-       # after
-       return OpenAISuggestionEngine()
-
-No other file needs to change.
+Setup
+─────
+1. pip install openai            (or uncomment the line in requirements.txt)
+2. Add OPENAI_API_KEY=sk-...    to backend/.env
 """
 
 from app.engine.base_engine import BaseSuggestionEngine
-from app.engine.hardcoded_engine import HardcodedSuggestionEngine
+from app.engine.openai_engine import OpenAISuggestionEngine
 
-# from app.engine.openai_engine import OpenAISuggestionEngine  # ← uncomment to switch
+# Retained for easy fallback – swap the return statement below to use it.
+# from app.engine.hardcoded_engine import HardcodedSuggestionEngine
 
 
 def get_engine() -> BaseSuggestionEngine:
@@ -29,7 +25,7 @@ def get_engine() -> BaseSuggestionEngine:
 
     Called once per request (FastAPI dependency injection).
     """
-    return HardcodedSuggestionEngine()
+    return OpenAISuggestionEngine(model="gpt-4o-mini")
 
-    # ── OpenAI variant ────────────────────────────────────────────────────────
-    # return OpenAISuggestionEngine(model="gpt-4o-mini")
+    # ── Deterministic fallback (no API key required) ───────────────────────────
+    # return HardcodedSuggestionEngine()
