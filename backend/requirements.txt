@@ -8,3 +8,14 @@ python-dotenv>=1.0.0
 
 # ── OpenAI engine ────────────────────────────────────────────────────────────
 openai>=1.23.0
+
+# ── PDF export ───────────────────────────────────────────────────────────────
+# Install svglib WITHOUT its optional Cairo sub-tree to avoid the
+# pycairo / libcairo system-library build requirement:
+#   pip install reportlab lxml cssselect2 tinycss2
+#   pip install svglib --no-deps
+# svg2rlg + renderPDF.draw only need ReportLab's built-in PDF backend.
+reportlab>=4.1.0
+svglib>=1.5.1
+lxml>=5.0.0
+cssselect2>=0.2.0

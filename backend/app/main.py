@@ -19,6 +19,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.routers.suggestions import router as suggestions_router
+from app.routers.export import router as export_router
 
 # ── Logging ───────────────────────────────────────────────────────────────────
 
@@ -95,6 +96,7 @@ def create_app() -> FastAPI:
 
     # ── Routers ───────────────────────────────────────────────────────────────
     app.include_router(suggestions_router)
+    app.include_router(export_router)
 
     # ── Liveness probe ────────────────────────────────────────────────────────
     @app.get("/health", tags=["meta"], summary="Liveness probe")
