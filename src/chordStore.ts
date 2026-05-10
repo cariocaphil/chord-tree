@@ -1,10 +1,14 @@
 import { create } from 'zustand';
+import { fetchChordSuggestions } from './api/chordApi';
 import { ChordNode, ChordSuggestion, ProgressionState } from './types';
 
 interface ChordStore extends ProgressionState {
   addChordNode: (suggestion: ChordSuggestion) => void;
   selectNode: (nodeId: string) => void;
   deleteSelectedNode: () => void;
+  setStyle: (style: string) => void;
+  setMood: (mood: string) => void;
+  fetchSuggestions: () => Promise<void>;
   getProgression: () => string[];
   getProgressionNodes: () => ChordNode[];
   getActiveBranchId: () => string;
@@ -23,40 +27,56 @@ const createRootNode = (): ChordNode => ({
   createdAt: Date.now(),
 });
 
-const HARDCODED_SUGGESTIONS: ChordSuggestion[] = [
-  {
-    chordName: 'Am7',
-    notes: ['A3', 'C4', 'E4', 'G4'],
-    label: 'Am7',
-    explanation: 'Minor seventh chord',
-  },
-  {
-    chordName: 'Dm7',
-    notes: ['D4', 'F4', 'A4', 'C5'],
-    label: 'Dm7',
-    explanation: 'Minor seventh chord',
-  },
-  {
-    chordName: 'Fmaj7',
-    notes: ['F4', 'A4', 'C5', 'E5'],
-    label: 'Fmaj7',
-    explanation: 'Major seventh chord',
-  },
-  {
-    chordName: 'G7',
-    notes: ['G4', 'B4', 'D5', 'F5'],
-    label: 'G7',
-    explanation: 'Dominant seventh chord',
-  },
-];
+/** Number of suggestions requested from the backend per call. */
+const NUMBER_OF_SUGGESTIONS = 4;
 
 export const useChordStore = create<ChordStore>((set, get) => ({
   nodes: { root: createRootNode() },
   selectedNodeId: 'root',
-  suggestions: HARDCODED_SUGGESTIONS,
+  suggestions: [],
+  isFetchingSuggestions: false,
+  suggestionError: null,
+  style: 'jazz',
+  mood: 'melancholic',
   // active branch (checked-out branch)
   activeBranchId: 'main',
 
+  // ─── Style / mood setters ─────────────────────────────────────────────────
+  setStyle: (style: string) => set({ style }),
+  setMood:  (mood: string)  => set({ mood }),
+
+  // ─── Fetch suggestions from the backend ───────────────────────────────────
+  fetchSuggestions: async () => {
+    const state = get();
+
+    // Build the full progression path from root → selected node.
+    const progression: string[] = [];
+    let currentId: string | null = state.selectedNodeId;
+    while (currentId !== null) {
+      const node: ChordNode | undefined = state.nodes[currentId];
+      if (!node) break;
+      progression.unshift(node.chordName);
+      currentId = node.parentId;
+    }
+
+    set({ isFetchingSuggestions: true, suggestionError: null });
+
+    try {
+      const suggestions = await fetchChordSuggestions({
+        progression,
+        style: state.style,
+        mood: state.mood,
+        numberOfSuggestions: NUMBER_OF_SUGGESTIONS,
+      });
+      set({ suggestions, isFetchingSuggestions: false });
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : 'Unknown error fetching suggestions';
+      set({ suggestionError: message, isFetchingSuggestions: false });
+    }
+  },
+
+  // ─── Add a chord node and immediately fetch new suggestions ───────────────
   addChordNode: (suggestion: ChordSuggestion) => {
     set((state) => {
       const parentId = state.selectedNodeId;
@@ -93,8 +113,11 @@ export const useChordStore = create<ChordStore>((set, get) => ({
         activeBranchId: branchId,
       };
     });
+    // Fetch fresh suggestions for the newly added node.
+    get().fetchSuggestions();
   },
 
+  // ─── Select a node and re-fetch suggestions for it ────────────────────────
   selectNode: (nodeId: string) => {
     set((state) => {
       const node: ChordNode | undefined = state.nodes[nodeId];
@@ -103,6 +126,8 @@ export const useChordStore = create<ChordStore>((set, get) => ({
         activeBranchId: node?.branchId || state.activeBranchId,
       };
     });
+    // Fetch fresh suggestions for the newly selected node.
+    get().fetchSuggestions();
   },
 
   // ─── Delete the currently selected node (leaf nodes only, not root) ───────
@@ -133,6 +158,8 @@ export const useChordStore = create<ChordStore>((set, get) => ({
         activeBranchId: parentNode?.branchId ?? state.activeBranchId,
       };
     });
+    // Re-fetch suggestions for the node we moved back up to.
+    get().fetchSuggestions();
   },
 
   // ─── Helper: true when nodeId has no children ─────────────────────────────
@@ -175,6 +202,7 @@ export const useChordStore = create<ChordStore>((set, get) => ({
   getBranchNodes: (branchId: string) => {
     return Object.values(get().nodes).filter((n) => n.branchId === branchId).sort((a,b)=>a.createdAt-b.createdAt);
   },
+
   // Return the progression as an array of ChordNode objects from root -> selected
   getProgressionNodes: () => {
     const state = get();

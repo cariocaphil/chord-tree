@@ -372,3 +372,189 @@ body {
 .node-dot, .node-label {
   pointer-events: auto;
 }
+
+/* ── Suggestion Cards – header & controls ─────────────────────────────────── */
+
+.suggestion-cards__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.suggestion-cards__header h2 {
+  margin-bottom: 0;
+}
+
+.suggestion-cards__controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.control-label {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.control-select {
+  appearance: none;
+  background-color: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 0.3rem 1.8rem 0.3rem 0.6rem;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  cursor: pointer;
+  /* custom caret */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236b7280'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.control-select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+
+.control-select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.control-refresh {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background-color: var(--surface);
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  flex-shrink: 0;
+}
+
+.control-refresh:hover:not(:disabled) {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  color: white;
+}
+
+.control-refresh:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ── Spinner ──────────────────────────────────────────────────────────────── */
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.spinner {
+  display: inline-block;
+  width: 0.85rem;
+  height: 0.85rem;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+/* ── Error banner ─────────────────────────────────────────────────────────── */
+
+.suggestion-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 0.65rem 1rem;
+  margin-bottom: 1rem;
+  font-size: 0.85rem;
+  color: #b91c1c;
+}
+
+.suggestion-error__retry {
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 0.3rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.15s ease;
+  flex-shrink: 0;
+}
+
+.suggestion-error__retry:hover {
+  background-color: #dc2626;
+}
+
+/* ── Skeleton loading cards ───────────────────────────────────────────────── */
+
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position:  400px 0; }
+}
+
+.suggestion-card--skeleton {
+  background: linear-gradient(
+    135deg,
+    rgba(79, 70, 229, 0.55) 0%,
+    rgba(67, 56, 202, 0.55) 100%
+  );
+  pointer-events: none;
+  cursor: default;
+  gap: 0.75rem;
+}
+
+.skeleton-notation,
+.skeleton-line {
+  border-radius: 6px;
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.12) 25%,
+    rgba(255,255,255,0.28) 50%,
+    rgba(255,255,255,0.12) 75%
+  );
+  background-size: 400px 100%;
+  animation: shimmer 1.4s infinite linear;
+}
+
+.skeleton-notation {
+  width: 100px;
+  height: 60px;
+  margin: 0 auto;
+}
+
+.skeleton-line {
+  height: 0.75rem;
+  margin: 0 auto;
+}
+
+.skeleton-line--name {
+  width: 60%;
+}
+
+.skeleton-line--explanation {
+  width: 85%;
+}

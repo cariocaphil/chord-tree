@@ -22,3 +22,24 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+venv/
+.env/
+
+# SQLite
+*.db
+
+# macOS
+.DS_Store
+
+# Vite
+.vite/
+
+# IDE
+.vscode/
+.idea/
