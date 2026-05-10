@@ -1,99 +1,208 @@
-# Chord Tree - Composition Tool
+# Chord Tree — Composition Tool
 
-A React + TypeScript + Vite app for chord-by-chord composition exploration.
+A React + TypeScript + Vite app for chord-by-chord composition exploration,
+powered by an AI suggestion engine (GPT-4o) on the backend.
+
+---
 
 ## Features
 
-- **Chord Node Graph**: Build chord progressions by selecting from suggestions
-- **State Management**: Zustand-based store for progression state
-- **Visual Display**: 
-  - Current progression shown as chord badges
-  - Clickable suggestion cards for next chords
-  - Debug view showing graph structure
- - **Playback**: Play the current progression with a simple piano-like synth (Tone.js)
+- **AI-powered suggestions** — GPT-4o suggests the next chord based on the full
+  progression, style, mood, and optional key context
+- **Chord node graph** — build branching progressions by clicking suggestion cards;
+  each branch is tracked independently (git-style)
+- **Playback** — play the progression root-to-selected with a PolySynth (Tone.js)
+- **Notation** — every chord card and progression badge renders a mini treble staff
+  (VexFlow)
+- **Educational comments** — one-sentence music-theory explanation on every suggestion
+- **Style & mood context** — set the composition style (e.g. `jazz`) and mood
+  (e.g. `melancholic`) to steer the AI
+- **Key context** — optionally set a tonal centre (e.g. `C major`) for harmonically
+  grounded suggestions
 
-## Project Structure
+---
+
+## Project structure
 
 ```
-src/
-├── types.ts                 # Core type definitions
-├── chordStore.ts           # Zustand store for state management
-├── playbackService.ts      # Tone.js playback logic (PolySynth)
-├── App.tsx                 # Main application component
-├── App.css                 # Application styles
-├── main.tsx                # Entry point
-├── index.css               # Global styles
-└── components/
-    ├── ProgressionDisplay.tsx    # Shows current chord progression
-    ├── SuggestionCards.tsx       # Displays suggested next chords
-  ├── DebugGraphView.tsx        # Debug view of graph state
-  └── ChordNotation.tsx        # Small VexFlow staff renderer for chords
+chord-tree/
+├── src/
+│   ├── types.ts                       # Shared TypeScript interfaces
+│   ├── chordStore.ts                  # Zustand store — all app state + actions
+│   ├── playbackService.ts             # Tone.js PolySynth playback
+│   ├── App.tsx                        # Root component
+│   ├── App.css                        # Component styles
+│   ├── main.tsx                       # Vite entry point
+│   ├── index.css                      # Global styles / CSS variables
+│   ├── api/
+│   │   └── chordApi.ts                # Typed fetch client for the backend
+│   └── components/
+│       ├── ProgressionDisplay.tsx     # Progression path + Play button
+│       ├── SuggestionCards.tsx        # AI suggestion cards
+│       ├── ChordNotation.tsx          # VexFlow mini staff renderer
+│       ├── EducationalComments.tsx    # Theory explanation display
+│       ├── TimelineGraph.tsx          # Branch / timeline visualisation
+│       └── DebugGraphView.tsx         # Raw graph state inspector
+└── backend/                           # FastAPI suggestion engine (see backend/README.md)
 ```
 
-## Installation
+---
+
+## Prerequisites
+
+| Tool | Version |
+|------|---------|
+| Node.js | 18 + |
+| npm | 9 + |
+| Python | 3.11 + |
+| OpenAI API key | — |
+
+---
+
+## Quick start
+
+### 1. Backend
 
 ```bash
+cd backend
+python3 -m venv .venv
+source .venv/bin/activate        # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+
+# Create the environment file
+echo "OPENAI_API_KEY=sk-..." > .env
+
+uvicorn app.main:app --reload --port 8000
+```
+
+Confirm it is running:
+```bash
+curl http://localhost:8000/health
+# {"status": "ok"}
+```
+
+### 2. Frontend
+
+```bash
+# in the project root
 npm install
-```
-
-## Development
-
-```bash
 npm run dev
 ```
 
-The app will start at `http://localhost:5173`
+Open **http://localhost:5173**. Vite proxies `/api/*` to `http://127.0.0.1:8000`
+so no CORS configuration is needed in development.
 
-## Build
+---
+
+## Build for production
 
 ```bash
-npm run build
+npm run build       # outputs to dist/
+npm run preview     # serve the production build locally
 ```
 
-## Data Model
+---
 
-### ChordNode
-- `id`: Unique identifier
-- `chordName`: Name of the chord (e.g., "Cmaj7")
-- `notes`: Array of note strings (e.g., ["C4", "E4", "G4", "B4"])
-- `parentId`: ID of the parent node (null for root)
-- `branchId`: Identifier for the branch this node belongs to
-- `createdAt`: Timestamp when the node was created
+## Data model
 
-### ChordSuggestion
-- `chordName`: Name of the suggested chord
-- `notes`: Array of note strings
-- `label`: Display label
-- `explanation`: Brief explanation of the chord
+### `ChordNode`
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | `string` | Unique node identifier |
+| `chordName` | `string` | Chord symbol, e.g. `"Am7"` |
+| `notes` | `string[]` | SPN note names, e.g. `["A3","C4","E4","G4"]` |
+| `parentId` | `string \| null` | Parent node id; `null` for root |
+| `branchId` | `string` | Branch this node belongs to |
+| `createdAt` | `number` | Unix timestamp (ms) |
 
-### ProgressionState
-- `nodes`: Record of all ChordNodes keyed by ID
-- `selectedNodeId`: Currently selected node
-- `suggestions`: Array of suggested next chords
+### `ChordSuggestion`
+| Field | Type | Description |
+|-------|------|-------------|
+| `chordName` | `string` | Chord symbol |
+| `notes` | `string[]` | SPN note names for playback / notation |
+| `label` | `string` | Short display label |
+| `explanation` | `string` | One-sentence music-theory reason |
+
+### `ProgressionState` (Zustand store)
+| Field | Type | Description |
+|-------|------|-------------|
+| `nodes` | `Record<string, ChordNode>` | All nodes keyed by id |
+| `selectedNodeId` | `string` | Currently selected node |
+| `suggestions` | `ChordSuggestion[]` | Current AI suggestions |
+| `isFetchingSuggestions` | `boolean` | True while a request is in-flight |
+| `suggestionError` | `string \| null` | Last fetch error message |
+| `style` | `string` | Composition style context |
+| `mood` | `string` | Emotional mood context |
+| `currentKey` | `string \| undefined` | Tonal centre, e.g. `"C major"` |
+| `activeBranchId` | `string` | Currently checked-out branch |
+
+---
+
+## Store actions
+
+| Action | Description |
+|--------|-------------|
+| `addChordNode(suggestion)` | Append a chord node and re-fetch suggestions |
+| `selectNode(nodeId)` | Change selection and re-fetch suggestions |
+| `deleteSelectedNode()` | Remove the selected leaf node |
+| `setStyle(style)` | Update style context |
+| `setMood(mood)` | Update mood context |
+| `setCurrentKey(key?)` | Set or clear the tonal centre |
+| `fetchSuggestions()` | Manually trigger a suggestion fetch |
+| `getProgression()` | Return chord names root → selected |
+| `getProgressionNodes()` | Return `ChordNode[]` root → selected |
+| `getChildrenOf(nodeId)` | Return direct children of a node |
+| `isLeafNode(nodeId)` | True when a node has no children |
+
+---
+
+## How suggestions are fetched
+
+```
+User action (select / add node)
+  └─ fetchSuggestions()
+       └─ builds progression[]  root → selectedNode
+       └─ POST /api/suggest-next-chords
+            { progression, style, mood, numberOfSuggestions, currentKey }
+                 │
+                 ▼  (FastAPI → OpenAI GPT-4o-mini)
+            { suggestions: [{ chordName, notes, label, explanation }] }
+       └─ set({ suggestions })
+            └─ SuggestionCards re-renders
+```
+
+Vite proxies `/api/*` → `http://127.0.0.1:8000` in development
+(configured in `vite.config.ts`).
+
+---
 
 ## Playback
 
-- A `Play` button in the `ProgressionDisplay` plays the current progression from root to the selected node.
-- Playback uses `Tone.PolySynth` via `src/playbackService.ts`. Each chord plays for one second by default.
-- Note: browsers require a user gesture to enable audio output — click the page or the Play button if playback doesn't start on first attempt.
+- Click **Play** in `ProgressionDisplay` to hear the full progression root → selected node.
+- Each chord sounds for one second using `Tone.PolySynth`.
+- Browsers require a user gesture before audio can start — if nothing plays on
+  the first click, click once anywhere on the page then try again.
 
-## Notation & UI
+---
 
-- Each chord card and progression badge now shows a small treble staff rendered with VexFlow (`src/components/ChordNotation.tsx`) displaying the chord as a stacked whole note.
-- Suggested cards display the chord name once (under the staff). Progression chips display notation above the chord name.
-- Tile sizes were increased to comfortably fit notation and labels; see `src/App.css` for styling values.
+## Notation
 
-## Workflow
+- Every suggestion card and progression badge renders a small treble staff via
+  **VexFlow** (`ChordNotation.tsx`), displaying the chord as stacked whole notes.
+- The staff is purely visual — it reflects the `notes[]` array from the suggestion.
 
-1. **Start**: Root node "Cmaj7" is created and selected
-2. **Select Suggestion**: Click a suggestion card to create a new chord node
-3. **Progression Updates**: The top section shows the path from root to current node
-4. **Debug View**: Monitor the graph structure in real-time
+---
 
-## Technologies Used
+## Technologies
 
-- **React 18**: UI framework
-- **TypeScript**: Type safety
-- **Vite**: Build tool and dev server
-- **Zustand**: State management
-- **CSS3**: Styling with CSS variables for theming
+| Layer | Technology |
+|-------|------------|
+| UI framework | React 18 |
+| Language | TypeScript |
+| Build tool | Vite |
+| State management | Zustand |
+| Audio | Tone.js |
+| Music notation | VexFlow |
+| Styling | CSS3 + CSS variables |
+| Backend | FastAPI (Python) |
+| AI suggestions | OpenAI GPT-4o-mini |

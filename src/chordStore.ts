@@ -8,6 +8,7 @@ interface ChordStore extends ProgressionState {
   deleteSelectedNode: () => void;
   setStyle: (style: string) => void;
   setMood: (mood: string) => void;
+  setCurrentKey: (currentKey?: string) => void;
   fetchSuggestions: () => Promise<void>;
   getProgression: () => string[];
   getProgressionNodes: () => ChordNode[];
@@ -38,12 +39,14 @@ export const useChordStore = create<ChordStore>((set, get) => ({
   suggestionError: null,
   style: 'jazz',
   mood: 'melancholic',
+  currentKey: undefined,
   // active branch (checked-out branch)
   activeBranchId: 'main',
 
-  // ─── Style / mood setters ─────────────────────────────────────────────────
-  setStyle: (style: string) => set({ style }),
-  setMood:  (mood: string)  => set({ mood }),
+  // ─── Style / mood / key setters ──────────────────────────────────────────
+  setStyle:      (style: string)       => set({ style }),
+  setMood:       (mood: string)        => set({ mood }),
+  setCurrentKey: (currentKey?: string) => set({ currentKey }),
 
   // ─── Fetch suggestions from the backend ───────────────────────────────────
   fetchSuggestions: async () => {
@@ -67,6 +70,7 @@ export const useChordStore = create<ChordStore>((set, get) => ({
         style: state.style,
         mood: state.mood,
         numberOfSuggestions: NUMBER_OF_SUGGESTIONS,
+        currentKey: state.currentKey,
       });
       set({ suggestions, isFetchingSuggestions: false });
     } catch (err: unknown) {
