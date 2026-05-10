@@ -88,6 +88,7 @@ def create_app() -> FastAPI:
             "http://localhost:5173",   # Vite dev server
             "http://127.0.0.1:5173",
             "http://localhost:4173",   # Vite preview
+            "https://chord-tree-production.up.railway.app"
         ],
         allow_credentials=True,
         allow_methods=["*"],
