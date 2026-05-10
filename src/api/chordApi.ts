@@ -14,8 +14,13 @@
 import type { ChordSuggestion } from '../types';
 
 // ── Config ────────────────────────────────────────────────────────────────────
+//
+// In development Vite proxies /api/* → http://127.0.0.1:8000 (see vite.config.ts)
+// so the relative '/api' fallback works with zero config.
+// In production (Vercel) set VITE_API_BASE_URL to your deployed backend origin,
+// e.g. https://my-backend.railway.app  (no trailing slash, no /api suffix).
 
-const BASE_URL = '/api';
+const BASE_URL = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? '/api';
 
 // ── Request / response shapes (mirror backend Pydantic models) ───────────────
 

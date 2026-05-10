@@ -13,7 +13,8 @@
 
 import { ApiError } from './chordApi';
 
-const BASE_URL = '/api';
+// Same origin resolution as chordApi.ts — falls back to Vite proxy in dev.
+const BASE_URL = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? '/api';
 
 // ── Request shape (mirrors backend ChordExportItem / ExportPdfRequest) ────────
 
